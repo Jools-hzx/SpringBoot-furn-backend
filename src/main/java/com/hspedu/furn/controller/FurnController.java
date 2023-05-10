@@ -1,5 +1,6 @@
 package com.hspedu.furn.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hspedu.furn.bean.Furn;
 import com.hspedu.furn.service.FurnService;
 import com.hspedu.furn.util.Result;
@@ -96,5 +97,15 @@ public class FurnController {
         } else {
             return Result.error("5xx", "删除失败");
         }
+    }
+
+    //返回分页数据信息
+    @GetMapping("/furnsByPage")
+    @ResponseBody
+    public Result<Page<Furn>> queryByPage(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                          @RequestParam(value = "pageSize", defaultValue = "8") Integer pageSize) {
+
+        Page<Furn> page = furnService.page(new Page<>(pageNum, pageSize));
+        return Result.success(page);
     }
 }

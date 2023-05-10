@@ -6,3 +6,7 @@ spring:
     url: jdbc:mysql://localhost:3306/springboot_vue?userUnicode=true&characterEncoding=UTF-8&userSSL=true;
     username: root
     password: hzx
+mybatis-plus:
+  configuration:
+    #配置输出日志，方便观察
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
