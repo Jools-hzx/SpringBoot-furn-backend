@@ -1,9 +1,9 @@
 package com.hspedu.furn.controller;
 
-import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.hspedu.furn.bean.Furn;
 import com.hspedu.furn.service.FurnService;
 import com.hspedu.furn.util.Result;
+import com.sun.org.apache.bcel.internal.generic.I2F;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,6 +78,23 @@ public class FurnController {
             return Result.success(furn);
         } else {
             return Result.error("4xx", "ID不存在");
+        }
+    }
+
+    //删除数据
+    @DeleteMapping("/del/{id}")
+    @ResponseBody
+    public Result deleteById(@PathVariable(value = "id") Integer id) {
+        /*
+        default boolean removeById(Serializable id) {
+            return SqlHelper.retBool(getBaseMapper().deleteById(id));
+        }
+        */
+        boolean isRemoved = furnService.removeById(id);
+        if (isRemoved) {
+            return Result.success();
+        } else {
+            return Result.error("5xx", "删除失败");
         }
     }
 }
