@@ -1,11 +1,14 @@
 package com.hspedu.furn.controller;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hspedu.furn.bean.Furn;
 import com.hspedu.furn.service.FurnService;
 import com.hspedu.furn.util.Result;
 import com.sun.org.apache.bcel.internal.generic.I2F;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -106,6 +109,25 @@ public class FurnController {
                                           @RequestParam(value = "pageSize", defaultValue = "8") Integer pageSize) {
 
         Page<Furn> page = furnService.page(new Page<>(pageNum, pageSize));
+        return Result.success(page);
+    }
+
+    //方法: 可以支持带条件的分页检索
+    @GetMapping("/pageByConditional")
+    @ResponseBody
+    public Result<Page<Furn>> pageByConditional(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                                @RequestParam(value = "pageSize", defaultValue = "8") Integer pageSize,
+                                                @RequestParam(value = "search", defaultValue = "") String search) {
+
+        QueryWrapper<Furn> queryWrapper = new QueryWrapper<>();
+
+        if (StringUtils.hasText(search)) {
+            // like: "name" 表示对应数据库中的字段名
+            queryWrapper = queryWrapper.like("name", search);
+        }
+        Page<Furn> page = furnService.page(
+                new Page<>(pageNum, pageSize),
+                queryWrapper);
         return Result.success(page);
     }
 }
