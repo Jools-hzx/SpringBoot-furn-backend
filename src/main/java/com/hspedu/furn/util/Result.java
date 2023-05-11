@@ -51,7 +51,7 @@ public class Result<T> {
     }
 
     //编写方法返回携带数据的失败消息
-    public static <T> Result<T> success(String code, String msg, T data) {
+    public static <T> Result<T> error(String code, String msg, T data) {
         Result<T> result = new Result<>(data);
         result.setCode(code);
         result.setMsg(msg);

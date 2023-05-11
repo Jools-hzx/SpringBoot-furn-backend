@@ -1,18 +1,21 @@
 package com.hspedu.furn.controller;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hspedu.furn.bean.Furn;
 import com.hspedu.furn.service.FurnService;
 import com.hspedu.furn.util.Result;
-import com.sun.org.apache.bcel.internal.generic.I2F;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Zexi He.
@@ -28,20 +31,37 @@ public class FurnController {
     private FurnService furnService;
 
     @PostMapping("/save")
-    public Result save(@RequestBody Furn furn) {
-        try {
+    public Result<?> save(@Validated @RequestBody Furn furn, Errors errors) {
+//        try {
+//            furnService.save(furn);
+//            return Result.success();
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//            return Result.error("?", "添加失败");
+//        }
+
+        Map<String, String> errorsMap = new HashMap<>();
+
+        //如果有错误，获取到所有的错误
+        List<FieldError> fieldErrors = errors.getFieldErrors();
+        for (FieldError error : fieldErrors) {
+            errorsMap.put(error.getField(), error.getDefaultMessage());
+        }
+
+        //如果没有错误，说明验证成功，返回成功消息
+        if (errorsMap.isEmpty()) {
             furnService.save(furn);
             return Result.success();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return Result.error("?", "添加失败");
+        } else {
+            //否则返回错误消息
+            return Result.error("5xx", "后端验证失败", errorsMap);
         }
     }
 
     //显示数据库中的所有数据;后面再考虑去使用分页
     @RequestMapping("/list")
     @ResponseBody
-    public Result listFurns() {
+    public Result<?> listFurns() {
         try {
             List<Furn> list = furnService.list();
             return Result.success(list);
@@ -54,7 +74,7 @@ public class FurnController {
     //完成数据修改
     @PutMapping("/update")
     @ResponseBody
-    public Result updateFurn(@RequestBody Furn furn) {
+    public Result<?> updateFurn(@RequestBody Furn furn) {
         /*
          * 根据 ID 选择修改
          *
@@ -76,7 +96,7 @@ public class FurnController {
     //根据id查询DB中的单行数据
     @GetMapping("/query")
     @ResponseBody
-    public Result queryById(@RequestParam(value = "id") Integer id) {
+    public Result<?> queryById(@RequestParam(value = "id") Integer id) {
         Furn furn = furnService.getById(id);
         if (null != furn) {
             return Result.success(furn);
@@ -88,7 +108,7 @@ public class FurnController {
     //删除数据
     @DeleteMapping("/del/{id}")
     @ResponseBody
-    public Result deleteById(@PathVariable(value = "id") Integer id) {
+    public Result<?> deleteById(@PathVariable(value = "id") Integer id) {
         /*
         default boolean removeById(Serializable id) {
             return SqlHelper.retBool(getBaseMapper().deleteById(id));
