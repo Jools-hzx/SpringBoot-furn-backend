@@ -1,5 +1,7 @@
 package com.hspedu.furn.controller;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hspedu.furn.bean.Furn;
@@ -148,6 +150,48 @@ public class FurnController {
         Page<Furn> page = furnService.page(
                 new Page<>(pageNum, pageSize),
                 queryWrapper);
+        return Result.success(page);
+    }
+
+
+    @GetMapping("/pageByConditional2")
+    @ResponseBody
+    public Result<Page<Furn>> pageByConditional2(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                                @RequestParam(value = "pageSize", defaultValue = "8") Integer pageSize,
+                                                @RequestParam(value = "search", defaultValue = "") String search) {
+
+        //说明，关于 Lambda 表达式，我们这里使用的是 类名::实例方法
+        //是 lambda 方法引用中一个不太容易理解的知识点
+
+        //解读:
+        //1. Furn::getName 通过 lambda 表达式去引用实例方法 getName
+        //2. 这里就是把 Furn::getName 赋给了 SFunction<T,R> 函数式接口
+        /*
+        @FunctionalInterface
+        public interface SFunction<T, R> extends Function<T, R>, Serializable {
+        }
+
+        @FunctionalInterface
+        public interface Function<T, R> {
+            R apply(T t);   //抽象方法:表示根据类型 T 的参数，获取到类型 R 的结果
+            //后面有默认实现方法
+        }
+
+        4. 传入Furn::getName 相当于实现类 SFunction<T,R> 的 apply 方法
+        5. 底层就会根据 Furn:getName 去得到该方法对应的属性映射的表的字段
+         */
+
+        //创建 LambdaQueryWrapper, 封装查询条件
+        LambdaQueryWrapper<Furn> queryWrapper = new LambdaQueryWrapper<>();
+
+        //判断 search 关键字
+        if (StringUtils.hasText(search)) {
+            //后面讲解
+            queryWrapper.like(Furn::getName, search);
+        }
+
+        Page<Furn> page = furnService.page(new Page<>(pageNum, pageSize), queryWrapper);
+        log.info("page:{}", page);
         return Result.success(page);
     }
 }
